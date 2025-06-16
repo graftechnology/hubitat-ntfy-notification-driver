@@ -1,8 +1,7 @@
 # NTFY Notifier Driver for Hubitat
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/graftechnology/hubitat-ntfy-notification-driver)](https://github.com/graftechnology/hubitat-ntfy-notification-driver/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Hubitat Package Manager](https://img.shields.io/badge/Hubitat-Package%20Manager-blue)](https://community.hubitat.com/t/beta-hubitat-package-manager/38016)
+[![Hubitat Package Manager](https://img.shields.io/badge/Hubitat-Package%20Manager-blue)](https://hubitatpackagemanager.hubitatcommunity.com/)
 
 A comprehensive Hubitat driver that sends notifications via [NTFY](https://ntfy.sh) with full feature support including attachments, scheduling, markdown formatting, and interactive click actions.
 
