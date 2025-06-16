@@ -1,0 +1,37 @@
+{
+  "author": "Graf Technology, LLC",
+  "dateReleased": "2025-06-16",
+  "description": "A comprehensive Hubitat driver for NTFY notifications (ntfy.sh or self-hosted). Features connection testing, enhanced error handling, input validation, state management, tags/emojis, click actions, attachments, custom icons, markdown formatting, and message scheduling.",
+  "documentationLink": "https://github.com/graftechnology/hubitat-ntfy-notification-driver",
+  "licenseFile": "https://raw.githubusercontent.com/graftechnology/hubitat-ntfy-notification-driver/main/LICENSE",
+  "location": "https://raw.githubusercontent.com/graftechnology/hubitat-ntfy-notification-driver/main/packageManifest.json",
+  "minimumHEVersion": "2.1.9",
+  "packageName": "NTFY Notifier Driver",
+  "releaseNotes": "v1.0.0: Comprehensive initial release with full NTFY feature support including notifications, connection testing, enhanced error handling, input validation, state management, tags/emojis, click actions, attachments, custom icons, markdown formatting, and message scheduling.",
+  "communityLink": "https://community.hubitat.com/",
+  "tags": [
+    "Notifications",
+    "NTFY",
+    "Push",
+    "Driver",
+    "Testing",
+    "Validation",
+    "Self-Hosted",
+    "Interactive",
+    "Emojis",
+    "Attachments",
+    "Markdown",
+    "Scheduling"
+  ],
+  "version": "1.0.0",
+  "drivers": [
+    {
+      "id": "graftechnology.ntfy-notifier",
+      "name": "NTFY Notifier Driver",
+      "namespace": "graftechnology",
+      "location": "https://raw.githubusercontent.com/graftechnology/hubitat-ntfy-notification-driver/main/drivers/graftechnology/ntfy-notifier.groovy",
+      "required": true,
+      "version": "1.0.0"
+    }
+  ]
+}
