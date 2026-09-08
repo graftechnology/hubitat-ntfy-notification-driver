@@ -14,14 +14,16 @@ Existing installs update in place. No preference is renamed or removed, so saved
   precedence over username/password. Closes #1.
 - "Ignore SSL certificate errors" preference for self-hosted servers with self-signed certificates.
 - Validation for topic length (ntfy allows 64 characters), hosts that mistakenly include the protocol,
-  priority values, delays beyond ntfy's three-day maximum, and a password entered without a username.
+  priority values, delays or schedule times beyond ntfy's three-day maximum, and a password entered without a username.
 - `importUrl` in the driver definition so manual installs can update from the Drivers Code page.
 - Automated test suite (Spock + hubitat_ci) and GitHub Actions CI.
 
 ### Changed
 
 - The topic no longer defaults to `hubitat`. On the public ntfy.sh server that topic is shared by everyone
-  who kept the default, so users received each other's notifications. Existing devices keep their saved topic.
+  who kept the default, so users received each other's notifications. Existing devices keep their saved topic,
+  and the driver now logs a warning on every send and preference save while `hubitat` is still used on ntfy.sh.
+  If that is you, change the topic to something unique.
 - Test Connection ignores delay/at scheduling so the test message arrives immediately.
 - Saving preferences no longer resets `lastNotificationStatus`, `lastNotificationTime` and `connectionStatus`.
 - Debug logging turns itself off 30 minutes after install or after saving preferences, following Hubitat convention.

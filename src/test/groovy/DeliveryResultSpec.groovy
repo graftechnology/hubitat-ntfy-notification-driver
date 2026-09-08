@@ -111,6 +111,30 @@ class DeliveryResultSpec extends NtfyDriverSpecBase {
         logs.debug.any { it.contains('Bearer ***') }
     }
 
+    def "publishing to the shared default topic on ntfy.sh warns the user"() {
+        when:
+        loadDriver(ntfyHost: 'ntfy.sh', ntfyTopic: 'hubitat').deviceNotification('hi')
+
+        then:
+        posts.size() == 1
+        logs.warn.size() == 1
+        logs.warn[0].contains("'hubitat'")
+        logs.warn[0].contains('shared')
+    }
+
+    def "a unique topic or a self-hosted server does not warn"() {
+        when:
+        loadDriver(ntfyHost: host, ntfyTopic: topic).deviceNotification('hi')
+
+        then:
+        logs.warn.isEmpty()
+
+        where:
+        host              | topic
+        'ntfy.sh'         | 'hubitat-a8f3k2p9q7z1'
+        'ntfy.example.com'| 'hubitat'
+    }
+
     def "debug logging is silent when disabled"() {
         when:
         loadDriver(logEnable: false).deviceNotification('hi')

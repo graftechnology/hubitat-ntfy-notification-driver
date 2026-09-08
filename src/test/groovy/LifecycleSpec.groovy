@@ -53,6 +53,15 @@ class LifecycleSpec extends NtfyDriverSpecBase {
         1 * api.unschedule('logsOff')
     }
 
+    def "saving preferences with the shared default topic on ntfy.sh warns the user"() {
+        when:
+        loadDriver(ntfyHost: 'ntfy.sh', ntfyTopic: 'hubitat').updated()
+
+        then:
+        logs.warn.size() == 1
+        logs.warn[0].contains("'hubitat'")
+    }
+
     def "logsOff turns the preference off and says so"() {
         when:
         loadDriver().logsOff()

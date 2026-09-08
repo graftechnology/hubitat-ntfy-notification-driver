@@ -44,6 +44,7 @@ class ConfigurationValidationSpec extends NtfyDriverSpecBase {
         'at scheduling with a malformed time'      | [ntfyScheduling: 'at', ntfyScheduleTime: 'tomorrow 8am']              | 'YYYY-MM-DD HH:MM:SS'
         'at scheduling with an impossible date'    | [ntfyScheduling: 'at', ntfyScheduleTime: '2099-02-31 08:00:00']       | 'not a valid date'
         'at scheduling with a time in the past'    | [ntfyScheduling: 'at', ntfyScheduleTime: '2020-01-01 08:00:00']       | 'must be in the future'
+        'at scheduling more than three days out'   | [ntfyScheduling: 'at', ntfyScheduleTime: '2099-01-01 08:00:00']       | 'must be within 3 days'
     }
 
     def "reports every configuration problem at once"() {
@@ -86,7 +87,7 @@ class ConfigurationValidationSpec extends NtfyDriverSpecBase {
         message << [null, '', '   ', '\n\t']
     }
 
-    def "a validation failure does not disturb an existing connection status"() {
+    def "an empty message does not disturb an existing connection status"() {
         given:
         def script = loadDriver()
         script.deviceNotification('first')
@@ -96,5 +97,20 @@ class ConfigurationValidationSpec extends NtfyDriverSpecBase {
 
         then:
         attribute('connectionStatus') == 'Connected'
+    }
+
+    def "a configuration error after a successful send flips the connection status"() {
+        given:
+        def script = loadDriver(ntfyTopic: 'valid-topic')
+        script.deviceNotification('first')
+
+        when:
+        // Simulates the user saving a bad topic: the driver reads preferences live on every send.
+        def brokenScript = loadDriver(ntfyTopic: null)
+        brokenScript.deviceNotification('second')
+
+        then:
+        attributeHistory('connectionStatus') == ['Connected', 'Configuration Error']
+        attributeHistory('lastNotificationStatus') == ['Success', 'Failed']
     }
 }

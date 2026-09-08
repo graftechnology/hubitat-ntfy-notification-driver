@@ -19,6 +19,8 @@ import groovy.transform.Field
 @Field static final int MAX_DELAY_MINUTES = 3 * 24 * 60
 @Field static final int HTTP_TIMEOUT_SECONDS = 30
 @Field static final int DEBUG_LOG_AUTO_OFF_SECONDS = 30 * 60
+@Field static final String PUBLIC_HOST = "ntfy.sh"
+@Field static final String LEGACY_DEFAULT_TOPIC = "hubitat"
 
 metadata {
     definition(
@@ -73,6 +75,7 @@ void installed() {
 
 void updated() {
     logDebug "Preferences updated (v${VERSION})"
+    warnIfSharedTopic()
     scheduleDebugLogOff()
 }
 
@@ -100,6 +103,14 @@ void testConnection() {
     }
 }
 
+/** 1.0.0 defaulted the topic to "hubitat". On the public server that topic is shared by everyone who kept the default. */
+private void warnIfSharedTopic() {
+    if (ntfyHost?.trim()?.equalsIgnoreCase(PUBLIC_HOST) && ntfyTopic?.trim() == LEGACY_DEFAULT_TOPIC) {
+        log.warn "Topic '${LEGACY_DEFAULT_TOPIC}' on ${PUBLIC_HOST} is shared with every other user who kept the default: " +
+                 "you will see their notifications and they will see yours. Set a unique, hard-to-guess topic."
+    }
+}
+
 private void scheduleDebugLogOff() {
     if (logEnable) {
         runIn(DEBUG_LOG_AUTO_OFF_SECONDS, "logsOff")
@@ -119,6 +130,7 @@ private void publish(String operation, String body, Closure customizeHeaders = n
         return
     }
 
+    warnIfSharedTopic()
     Map headers = buildHeaders()
     if (customizeHeaders) customizeHeaders(headers)
 
@@ -239,8 +251,12 @@ private List<String> validateScheduleTime() {
     if (scheduledEpochSeconds == null) {
         return ["Schedule time '${value}' is not a valid date"]
     }
-    if (scheduledEpochSeconds * 1000 <= now()) {
+    long millisUntilScheduled = scheduledEpochSeconds * 1000 - now()
+    if (millisUntilScheduled <= 0) {
         return ["Schedule time '${value}' must be in the future"]
+    }
+    if (millisUntilScheduled > MAX_DELAY_MINUTES * 60 * 1000L) {
+        return ["Schedule time '${value}' must be within ${MAX_DELAY_MINUTES.intdiv(60 * 24)} days (ntfy's maximum)"]
     }
     return []
 }

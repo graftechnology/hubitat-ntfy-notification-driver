@@ -152,7 +152,7 @@ snapshot URL for security alerts.
 
 - **Delay by Minutes** holds the message on the server for the given number of minutes (up to 3 days).
 - **Send at Specific Time** delivers at the given date and time, interpreted in your hub's time zone.
-  The time must be in the future, otherwise the notification fails with a clear error.
+  The time must be in the future and within 3 days, otherwise the notification fails with a clear error.
 
 Scheduling applies to every notification the device sends, so it suits dedicated devices such as a
 "morning digest" notifier rather than general alerts.

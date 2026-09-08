@@ -117,10 +117,12 @@ class RequestBuildingSpec extends NtfyDriverSpecBase {
         given:
         def format = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         format.timeZone = HUB_TIME_ZONE
-        long expectedEpochSeconds = format.parse('2099-01-02 03:04:05').time.intdiv(1000)
+        // Tomorrow, so the value is in the future but inside ntfy's 3-day window. Truncated to whole seconds.
+        String scheduleTime = format.format(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000L))
+        long expectedEpochSeconds = format.parse(scheduleTime).time.intdiv(1000)
 
         when:
-        loadDriver(ntfyScheduling: 'at', ntfyScheduleTime: ' 2099-01-02 03:04:05 ').deviceNotification('hi')
+        loadDriver(ntfyScheduling: 'at', ntfyScheduleTime: " ${scheduleTime} ").deviceNotification('hi')
 
         then:
         lastPost().headers.At == expectedEpochSeconds.toString()
