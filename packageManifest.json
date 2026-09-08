@@ -1,7 +1,7 @@
 {
   "author": "Graf Technology, LLC",
   "dateReleased": "2026-09-08",
-  "description": "A comprehensive Hubitat driver for NTFY notifications (ntfy.sh or self-hosted). Features connection testing, enhanced error handling, input validation, state management, tags/emojis, click actions, attachments, custom icons, markdown formatting, and message scheduling.",
+  "description": "A Hubitat driver for ntfy push notifications (ntfy.sh or self-hosted). Access token or basic auth, connection testing, input validation, status attributes, tags/emojis, click actions, attachments, custom icons, markdown formatting, message scheduling and self-signed certificate support.",
   "documentationLink": "https://github.com/graftechnology/hubitat-ntfy-notification-driver",
   "licenseFile": "https://raw.githubusercontent.com/graftechnology/hubitat-ntfy-notification-driver/main/LICENSE",
   "location": "https://raw.githubusercontent.com/graftechnology/hubitat-ntfy-notification-driver/main/packageManifest.json",
