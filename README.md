@@ -1,310 +1,233 @@
 # NTFY Notifier Driver for Hubitat
 
+[![CI](https://github.com/graftechnology/hubitat-ntfy-notification-driver/actions/workflows/ci.yml/badge.svg)](https://github.com/graftechnology/hubitat-ntfy-notification-driver/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Hubitat Package Manager](https://img.shields.io/badge/Hubitat-Package%20Manager-blue)](https://hubitatpackagemanager.hubitatcommunity.com/)
 
-A comprehensive Hubitat driver that sends notifications via [NTFY](https://ntfy.sh) with full feature support including attachments, scheduling, markdown formatting, and interactive click actions.
+A Hubitat Elevation driver that sends notifications through [ntfy](https://ntfy.sh), either the public
+ntfy.sh service or your own server. It implements Hubitat's standard Notification capability, so it works
+anywhere a notification device can be selected: Rule Machine, Hubitat Safety Monitor, Notifications, custom apps.
 
 ## Table of Contents
 
-- [NTFY Notifier Driver for Hubitat](#ntfy-notifier-driver-for-hubitat)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-    - [Core Functionality](#core-functionality)
-    - [Advanced NTFY Features](#advanced-ntfy-features)
-    - [Developer Features](#developer-features)
-  - [Installation](#installation)
-    - [Hubitat Package Manager (HPM)](#hubitat-package-manager-hpm)
-    - [Manual Installation](#manual-installation)
-  - [Configuration](#configuration)
-    - [Basic Settings](#basic-settings)
-    - [Advanced Features](#advanced-features)
-    - [Public ntfy.sh Server](#public-ntfysh-server)
-    - [Self-Hosted NTFY Server](#self-hosted-ntfy-server)
-  - [Usage Examples](#usage-examples)
-    - [Basic Notifications](#basic-notifications)
-    - [Rich Notifications with Features](#rich-notifications-with-features)
-    - [Rule Machine Integration](#rule-machine-integration)
-    - [Testing the Connection](#testing-the-connection)
-  - [Feature Documentation](#feature-documentation)
-    - [Tags and Emojis](#tags-and-emojis)
-    - [Click Actions](#click-actions)
-    - [Attachments](#attachments)
-    - [Message Scheduling](#message-scheduling)
-    - [Markdown Formatting](#markdown-formatting)
-    - [Custom Icons](#custom-icons)
-  - [Troubleshooting](#troubleshooting)
-    - [Using the Connection Test](#using-the-connection-test)
-    - [Common Issues](#common-issues)
-    - [Debug Mode](#debug-mode)
-  - [Support](#support)
-  - [License](#license)
+- [Features](#features)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Feature Reference](#feature-reference)
+- [Troubleshooting](#troubleshooting)
+- [Development](#development)
+- [Support](#support)
+- [License](#license)
 
 ## Features
 
-### Core Functionality
-
-- ✅ **Universal Compatibility**: Works with `ntfy.sh` or self-hosted servers
-- ✅ **Protocol Selection**: HTTP/HTTPS support
-- ✅ **Authentication**: Username/password for private servers
-- ✅ **Connection Testing**: Built-in test functionality
-- ✅ **State Management**: Real-time status tracking
-- ✅ **Error Handling**: Comprehensive error management with clear messages
-
-### Advanced NTFY Features
-
-- ✅ **Tags & Emojis**: Text tags with automatic emoji conversion
-- ✅ **Click Actions**: Interactive notifications (open URLs, trigger HTTP requests)
-- ✅ **Attachments**: Send images/files from URLs
-- ✅ **Message Scheduling**: Delay or schedule notifications for specific times
-- ✅ **Markdown Formatting**: Rich text with bold, italic, links, lists
-- ✅ **Custom Icons**: Override notification icons with custom URLs
-- ✅ **Priority Levels**: 5 priority levels (Min, Low, Default, High, Max)
-- ✅ **Custom Titles**: Personalized notification titles
-
-### Developer Features
-
-- ✅ **Input Validation**: Prevents configuration errors
-- ✅ **Debug Logging**: Detailed troubleshooting information
-- ✅ **Professional Error Messages**: Clear, actionable error descriptions
-- ✅ **Hubitat Standards**: Native Notification capability implementation
+- Works with ntfy.sh or any self-hosted ntfy server over HTTP or HTTPS
+- Access token or username/password authentication
+- Title, priority (Min to Max), tags with automatic emoji conversion
+- Click actions: open a URL or trigger an HTTP request from the notification
+- Attachments from a URL, custom notification icons, Markdown formatting
+- Scheduling: delay by minutes or deliver at a specific date and time
+- Built-in connection test with `connectionStatus`, `lastNotificationStatus` and `lastNotificationTime` attributes
+- Clear, actionable error messages and credential-safe debug logging
+- Optional support for self-signed certificates
 
 ## Installation
 
-### Hubitat Package Manager (HPM)
+### Hubitat Package Manager (recommended)
 
-**Recommended method** for easy installation and automatic updates.
+1. Open **Apps** > **Hubitat Package Manager**.
+2. Choose **Install** > **Search by Keywords** and search for `NTFY`.
+3. Select **NTFY Notifier Driver** and follow the prompts.
 
-1. Open your Hubitat Elevation® web interface
-2. Navigate to **Apps** → **Hubitat Package Manager**
-3. Click **Install** → **Search by Keywords**
-4. Search for "NTFY Notifier Driver"
-5. Select the driver and click **Next**
-6. Review the details and click **Install**
+HPM will also offer future updates.
 
-### Manual Installation
+### Manual
 
-1. Navigate to **Drivers Code** in your Hubitat interface
-2. Click **New Driver**
-3. Copy and paste the driver code from [`drivers/graftechnology/ntfy-notifier.groovy`](drivers/graftechnology/ntfy-notifier.groovy)
-4. Click **Save**
+1. Open **Drivers Code** and click **New Driver**.
+2. Click **Import**, paste the raw URL below, and click **Import** again, then **Save**.
+
+```
+https://raw.githubusercontent.com/graftechnology/hubitat-ntfy-notification-driver/main/drivers/graftechnology/ntfy-notifier.groovy
+```
+
+Because the driver declares an `importUrl`, you can update later from the same page with the **Import** button.
 
 ## Configuration
 
-### Basic Settings
+1. Open **Devices** > **Add Device** > **Virtual**.
+2. Give it a name, choose **NTFY Notifier Driver** as the type, and click **Save Device**.
+3. Fill in the preferences below and click **Save Preferences**.
+4. Click the **Test Connection** command and check your ntfy client.
 
-1. Go to **Devices** → **Add Device** → **Virtual**
-2. Fill in device details:
-   - **Device Name**: "NTFY Notifier"
-   - **Device Label**: Your preferred label
-   - **Type**: "NTFY Notifier Driver"
-3. Click **Save Device**
+### Choose a private topic
 
-### Advanced Features
+On the public ntfy.sh server, a topic is effectively a password: anyone who subscribes to the same
+topic name receives every message published to it. Use a long, unique, hard-to-guess name such as
+`hubitat-a8f3k2p9q7z1`, never something generic like `hubitat` or `home`. Self-hosted servers with
+access control do not have this problem.
 
-Configure these optional settings in **Device Preferences**:
+### Preferences
 
-| Setting                 | Description                 | Example                                   |
-| ----------------------- | --------------------------- | ----------------------------------------- |
-| **Protocol**            | HTTP or HTTPS               | `https` (recommended)                     |
-| **NTFY Host**           | Server hostname             | `ntfy.sh` or `your-server.com`            |
-| **Topic**               | Notification topic          | `hubitat-alerts`                          |
-| **Title**               | Default message title       | `Hubitat Notification`                    |
-| **Priority**            | Message priority (1-5)      | `3` (Default)                             |
-| **Tags**                | Comma-separated tags        | `warning,house,fire`                      |
-| **Click Action**        | What happens when clicked   | `Open URL` or `HTTP Request`              |
-| **Action URL**          | URL for click actions       | `https://your-hubitat.local`              |
-| **Attachment URL**      | Image/file to attach        | `http://camera.local/snapshot.jpg`        |
-| **Attachment Filename** | Custom filename             | `camera-snapshot.jpg`                     |
-| **Custom Icon URL**     | Override notification icon  | `https://your-site.com/icon.png`          |
-| **Markdown**            | Enable rich text formatting | `true` or `false`                         |
-| **Scheduling**          | When to send message        | `Send Immediately`, `Delay`, or `At Time` |
-| **Username/Password**   | For private servers         | Your credentials                          |
+| Setting                       | Required | Description                                                                                       |
+| ----------------------------- | -------- | ------------------------------------------------------------------------------------------------- |
+| Protocol                      | Yes      | `https` (recommended) or `http`                                                                   |
+| NTFY Host                     | Yes      | Hostname, with port if needed: `ntfy.sh`, `ntfy.example.com:8080`. No protocol, no path.          |
+| Topic                         | Yes      | Letters, numbers, `_` and `-` only, up to 64 characters. See the note above.                      |
+| Title                         | No       | Notification title. Defaults to `Hubitat`.                                                        |
+| Priority                      | No       | Min, Low, Default, High or Max. Defaults to Default.                                              |
+| Tags                          | No       | Comma-separated. Names that match an emoji short code appear as emojis.                           |
+| Click Action / Action URL     | No       | `Open URL` opens the URL when tapped. `HTTP Request` adds a button that POSTs to the URL.         |
+| Attachment URL / Filename     | No       | Attach an image or file from a URL, optionally with a display filename.                           |
+| Custom Icon URL               | No       | Replaces the notification icon.                                                                   |
+| Enable Markdown Formatting    | No       | Renders `**bold**`, `_italic_`, links and lists in the message body.                              |
+| Scheduling / Delay / Time     | No       | `Delay by Minutes` (1 to 4320) or `Send at Specific Time` (`YYYY-MM-DD HH:MM:SS`, hub time zone). |
+| Access Token                  | No       | ntfy access token (`tk_...`). Recommended for ntfy Pro and self-hosted servers with auth.         |
+| Username / Password           | No       | Basic authentication. Ignored when an access token is set.                                        |
+| Ignore SSL certificate errors | No       | Enable only for self-hosted servers with self-signed certificates.                                |
+| Enable Debug Logging          | No       | Detailed request logging. Turns itself off after 30 minutes.                                      |
 
-### Public ntfy.sh Server
+### Example: public ntfy.sh
 
 ```
-Protocol: https
+Protocol:  https
 NTFY Host: ntfy.sh
-Topic: your-unique-topic-name
-Username/Password: (leave blank)
+Topic:     hubitat-a8f3k2p9q7z1
 ```
 
-### Self-Hosted NTFY Server
+### Example: self-hosted with authentication
 
 ```
-Protocol: https (or http)
-NTFY Host: your-ntfy-server.com
-Topic: your-topic
-Username/Password: (if authentication enabled)
+Protocol:     https
+NTFY Host:    ntfy.example.com
+Topic:        hubitat
+Access Token: tk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-## Usage Examples
+## Usage
 
-### Basic Notifications
+### Rule Machine
 
-Send a simple notification from any Hubitat app:
+1. Add an action: **Notifications** > **Send, Speak or Notify a Message**.
+2. Choose **Send notification to** and pick your NTFY device.
+3. Enter the message, for example `Front door opened at %time%`.
+
+### Hubitat Safety Monitor and other apps
+
+Any app that sends notifications lists the device under its notification device selector. Nothing
+else is needed.
+
+### From a custom app or driver
 
 ```groovy
-// In Rule Machine or custom app
-def ntfyDevice = getDevice("NTFY Notifier")
-ntfyDevice.deviceNotification("Motion detected in living room!")
+device.deviceNotification("Motion detected in the living room")
 ```
 
-### Rich Notifications with Features
+### Test Connection
 
-Configure your device with these settings for enhanced notifications:
+The **Test Connection** command on the device page publishes a message tagged with a check mark and test
+tube, ignoring any scheduling you have configured so the result arrives immediately. The
+`connectionStatus` attribute shows the outcome and the hub log explains any failure.
 
-- **Tags**: `warning,house`
-- **Click Action**: `Open URL`
-- **Action URL**: `https://your-hubitat.local/device/edit/123`
-- **Markdown**: `true`
+## Feature Reference
 
-Then send:
+### Tags and emojis
 
-```groovy
-ntfyDevice.deviceNotification("**ALERT**: Motion detected in *living room* at ${new Date()}")
-```
+Tags are sent as-is. ntfy renders tags that match an emoji short code as emojis in front of the title;
+the rest appear as plain text below the message. Example: `warning,house` shows a warning sign and a house.
+The full list is in the [ntfy emoji reference](https://docs.ntfy.sh/emojis/).
 
-This creates a notification with:
+### Click actions
 
-- Warning and house emojis
-- Bold "ALERT" text and italic "living room"
-- Clickable to open your device page
-
-### Rule Machine Integration
-
-1. Create a new **Rule Machine** rule
-2. Set your trigger (e.g., contact sensor opens)
-3. Add action: **Send or speak a message**
-4. Select your NTFY device
-5. Enter your message with markdown: `**Door Alert**: Front door opened at %time%`
-
-### Testing the Connection
-
-1. Open your NTFY device page
-2. Click **Test Connection** command
-3. Check your NTFY client for the test message
-4. Verify **Current States** shows "Connected"
-
-## Feature Documentation
-
-### Tags and Emojis
-
-Tags automatically convert to emojis based on NTFY's built-in mapping:
-
-```
-Tags: warning,house,fire
-Result: ⚠️🏠🔥 (emojis appear in notification)
-```
-
-Popular tags: `warning`, `fire`, `rotating_light`, `house`, `car`, `money`, `computer`, `phone`, `bell`
-
-### Click Actions
-
-Make notifications interactive:
-
-**Open URL**: Opens a webpage when notification is clicked
-
-```
-Click Action: Open URL
-Action URL: https://your-hubitat.local/device/edit/123
-```
-
-**HTTP Request**: Triggers an HTTP call when clicked
-
-```
-Click Action: HTTP Request
-Action URL: https://your-server.com/api/action
-```
+- **Open URL** sets the notification's click target, for example your Hubitat dashboard.
+- **HTTP Request** adds an "Open" button that sends a POST to the URL when tapped. Useful for
+  Maker API endpoints or webhooks.
 
 ### Attachments
 
-Send images or files with notifications:
+Provide a direct URL to an image or file. The ntfy client shows images inline. Combine with a camera
+snapshot URL for security alerts.
 
-```
-Attachment URL: http://192.168.1.100/camera/snapshot.jpg
-Attachment Filename: front-door-camera.jpg
-```
+### Scheduling
 
-Perfect for security camera snapshots, charts, or log files.
+- **Delay by Minutes** holds the message on the server for the given number of minutes (up to 3 days).
+- **Send at Specific Time** delivers at the given date and time, interpreted in your hub's time zone.
+  The time must be in the future, otherwise the notification fails with a clear error.
 
-### Message Scheduling
+Scheduling applies to every notification the device sends, so it suits dedicated devices such as a
+"morning digest" notifier rather than general alerts.
 
-**Delay Messages**: Send after a specific time
+### Markdown
 
-```
-Scheduling: Delay by Minutes
-Delay Minutes: 30
-```
+With Markdown enabled, messages such as `**CRITICAL**: freezer at *-2°C*. [Dashboard](https://hub.local)`
+render with bold, italics and links in clients that support it.
 
-**Schedule for Specific Time**: Send at exact date/time
+### Authentication
 
-```
-Scheduling: Send at Specific Time
-Schedule Time: 2025-06-17 08:00:00
-```
+ntfy supports two schemes and this driver sends whichever you configure:
 
-### Markdown Formatting
+- **Access token**: `Authorization: Bearer tk_...`. Create one with `ntfy token add` on your server or in
+  your ntfy.sh account settings. Preferred, because tokens can be revoked individually.
+- **Username and password**: standard Basic authentication.
 
-Enable rich text formatting:
-
-```
-Markdown: true
-Message: "**CRITICAL**: System temperature is *85°C*. [View Dashboard](https://hub.local)"
-```
-
-Supports: **bold**, _italic_, [links](url), lists, code blocks, etc.
-
-### Custom Icons
-
-Override the default notification icon:
-
-```
-Custom Icon URL: https://your-site.com/hubitat-icon.png
-```
+If both are set, the access token wins.
 
 ## Troubleshooting
 
-### Using the Connection Test
+| Log message                                                | What to do                                                                              |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `Configuration error: ...`                                 | The message lists every problem. Fix the named preferences and save.                    |
+| `Unknown host`                                             | Check the NTFY Host spelling and that the hub can resolve DNS.                          |
+| `Cannot connect to server`                                 | Check the port, firewall rules and that the server is running.                          |
+| `Unauthorized (HTTP 401)`                                  | The access token or username/password is wrong or expired.                              |
+| `Forbidden (HTTP 403)`                                     | The credentials are valid but cannot publish to this topic. Check the server ACLs.      |
+| `Not found (HTTP 404)`                                     | The host serves something other than ntfy at that path, or the topic name is invalid.   |
+| `Rate limited (HTTP 429)`                                  | ntfy.sh limits free publishing. Slow down or use a self-hosted server.                  |
+| `SSL error`                                                | For self-signed certificates, enable **Ignore SSL certificate errors**.                 |
+| `Schedule time ... must be in the future`                  | Update the schedule time or switch scheduling off.                                      |
+| Notifications appear that you did not send                 | Your topic is shared with someone else. Pick a unique topic (see above).                |
 
-1. Configure your device settings
-2. Click **Test Connection** command
-3. Check logs for detailed results
-4. Verify test message appears in your NTFY client
+Enable **Debug Logging** to see the exact URL, headers and body of each request in the hub log. The
+`Authorization` header is redacted.
 
-### Common Issues
+## Development
 
-| Issue                       | Solution                                            |
-| --------------------------- | --------------------------------------------------- |
-| **"Unknown host"**          | Check NTFY Host spelling and network connectivity   |
-| **"Unauthorized"**          | Verify username/password for private servers        |
-| **"Forbidden"**             | Topic may be protected - try a different topic      |
-| **"Connection timeout"**    | Check firewall settings and server availability     |
-| **"Invalid topic"**         | Use only letters, numbers, underscores, and hyphens |
-| **"Action URL required"**   | Provide Action URL when using click actions         |
-| **"Invalid schedule time"** | Use format: YYYY-MM-DD HH:MM:SS                     |
+The driver is tested off-hub with [hubitat_ci](https://github.com/biocomp/hubitat_ci), which loads the
+real driver file into a Hubitat-like sandbox, validates its metadata the way the hub does, and lets the
+tests mock hub APIs such as `httpPost` and `sendEvent`.
 
-### Debug Mode
+```
+./gradlew test
+```
 
-Enable debug logging in device preferences for detailed troubleshooting information including:
+Requirements: a JDK 17 or newer on your `PATH` or in `JAVA_HOME` to run Gradle. The JDK 11 toolchain the
+tests need is downloaded automatically. Test reports land in `build/reports/tests/test/index.html`.
 
-- HTTP request/response details
-- Header information
-- Validation results
-- Error stack traces
+Layout:
+
+```
+drivers/graftechnology/ntfy-notifier.groovy   the driver (the only file installed on the hub)
+src/test/groovy/                              Spock specifications
+packageManifest.json                          Hubitat Package Manager manifest
+```
+
+### Releasing
+
+1. Bump `VERSION` in the driver and `version`, `dateReleased` and `releaseNotes` in `packageManifest.json`.
+2. Add a section to `CHANGELOG.md`.
+3. Run the tests, commit, tag `vX.Y.Z` and push. CI checks that the driver and manifest versions agree.
+4. Create a GitHub release from the tag. HPM reads the manifest from `main`, so users see the update
+   once the commit lands there.
 
 ## Support
 
-- **Documentation**: [NTFY Official Docs](https://docs.ntfy.sh/)
-- **Community**: [Hubitat Community Forum](https://community.hubitat.com/)
-- **Issues**: [GitHub Issues](https://github.com/graftechnology/hubitat-ntfy-notification-driver/issues)
-- **Other Drivers**: [Graf Technology HPM Repository](https://github.com/graftechnology/hubitat-hpm-repository)
+- Issues and feature requests: [GitHub Issues](https://github.com/graftechnology/hubitat-ntfy-notification-driver/issues)
+- ntfy documentation: [docs.ntfy.sh](https://docs.ntfy.sh/)
+- Hubitat community: [community.hubitat.com](https://community.hubitat.com/)
+- More drivers: [Graf Technology HPM repository](https://github.com/graftechnology/hubitat-hpm-repository)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT. See [LICENSE](LICENSE).
 
----
-
-**Graf Technology, LLC** - Professional Hubitat integrations and automation solutions.
+Copyright (c) 2025-2026 Graf Technology, LLC.
