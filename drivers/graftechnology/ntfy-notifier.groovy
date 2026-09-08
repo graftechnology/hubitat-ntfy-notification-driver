@@ -13,7 +13,7 @@
 
 import groovy.transform.Field
 
-@Field static final String VERSION = "1.1.0"
+@Field static final String VERSION = "1.1.1"
 @Field static final String TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss"
 @Field static final int MAX_TOPIC_LENGTH = 64
 @Field static final int MAX_DELAY_MINUTES = 3 * 24 * 60
@@ -204,8 +204,9 @@ private List<String> validateConfiguration() {
     if (hasUsername && !hasPassword) {
         errors << "Password is required when username is provided"
     }
-    if (hasPassword && !hasUsername) {
-        errors << "Username is required when a password is provided (use Access Token for token authentication)"
+    if (hasPassword && !hasUsername && !ntfyAccessToken?.trim()) {
+        // 1.0.0 silently sent no auth in this case, so keep sending and just say so.
+        log.warn "Password is set without a username, so no authentication is sent. Fill in the username, or use Access Token for token authentication."
     }
 
     if (ntfyClickAction && ntfyClickAction != "none") {

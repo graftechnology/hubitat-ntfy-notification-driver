@@ -7,7 +7,7 @@
   "location": "https://raw.githubusercontent.com/graftechnology/hubitat-ntfy-notification-driver/main/packageManifest.json",
   "minimumHEVersion": "2.1.9",
   "packageName": "NTFY Notifier Driver",
-  "releaseNotes": "v1.1.0: Access token (Bearer) authentication; 'Ignore SSL certificate errors' option for self-signed certificates; fixed 'Send at Specific Time' scheduling (the date was previously ignored); credentials are no longer written to debug logs; Test Connection no longer inherits scheduling delays; saving preferences keeps status history; debug logging auto-disables after 30 minutes; topic no longer defaults to the shared public 'hubitat' topic (existing devices still using it on ntfy.sh get a log warning: change it to something unique); stricter validation with clearer error messages; automated test suite and CI.",
+  "releaseNotes": "v1.1.1: A password saved without a username now logs a warning instead of blocking sends (matches 1.0.0 behavior). v1.1.0: Access token (Bearer) authentication; 'Ignore SSL certificate errors' option for self-signed certificates; fixed 'Send at Specific Time' scheduling (the date was previously ignored); credentials are no longer written to debug logs; Test Connection no longer inherits scheduling delays; saving preferences keeps status history; debug logging auto-disables after 30 minutes; topic no longer defaults to the shared public 'hubitat' topic (existing devices still using it on ntfy.sh get a log warning: change it to something unique); stricter validation with clearer error messages; automated test suite and CI.",
   "communityLink": "https://community.hubitat.com/",
   "tags": [
     "Notifications",
@@ -23,7 +23,7 @@
     "Markdown",
     "Scheduling"
   ],
-  "version": "1.1.0",
+  "version": "1.1.1",
   "drivers": [
     {
       "id": "graftechnology.ntfy-notifier",
@@ -31,7 +31,7 @@
       "namespace": "graftechnology",
       "location": "https://raw.githubusercontent.com/graftechnology/hubitat-ntfy-notification-driver/main/drivers/graftechnology/ntfy-notifier.groovy",
       "required": true,
-      "version": "1.1.0"
+      "version": "1.1.1"
     }
   ]
 }

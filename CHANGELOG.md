@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-09-08
+
+### Changed
+
+- A password saved without a username logs a warning and sends without authentication, as 1.0.0 did,
+  instead of failing validation. Nothing that worked on 1.0.0 should stop working after upgrading.
+
 ## [1.1.0] - 2026-09-08
 
 Existing installs update in place. No preference is renamed or removed, so saved settings carry over.
@@ -14,7 +21,8 @@ Existing installs update in place. No preference is renamed or removed, so saved
   precedence over username/password. Closes #1.
 - "Ignore SSL certificate errors" preference for self-hosted servers with self-signed certificates.
 - Validation for topic length (ntfy allows 64 characters), hosts that mistakenly include the protocol,
-  priority values, delays or schedule times beyond ntfy's three-day maximum, and a password entered without a username.
+  priority values, and delays or schedule times beyond ntfy's three-day maximum. A password saved without a
+  username logs a warning.
 - `importUrl` in the driver definition so manual installs can update from the Drivers Code page.
 - Automated test suite (Spock + hubitat_ci) and GitHub Actions CI.
 
@@ -47,5 +55,6 @@ Existing installs update in place. No preference is renamed or removed, so saved
 - Initial release: Notification capability, connection test, titles, priorities, tags, click actions,
   attachments, custom icons, markdown, scheduling and basic authentication.
 
+[1.1.1]: https://github.com/graftechnology/hubitat-ntfy-notification-driver/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/graftechnology/hubitat-ntfy-notification-driver/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/graftechnology/hubitat-ntfy-notification-driver/releases/tag/v1.0.0

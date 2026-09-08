@@ -32,7 +32,6 @@ class ConfigurationValidationSpec extends NtfyDriverSpecBase {
         'an unknown protocol'                      | [ntfyProtocol: 'ftp']                                                 | 'Protocol must be http or https'
         'a priority outside 1-5'                   | [ntfyPriority: '9']                                                   | 'Priority must be between 1 and 5'
         'a username without a password'            | [ntfyUsername: 'alice']                                               | 'Password is required when username is provided'
-        'a password without a username'            | [ntfyPassword: 's3cret']                                              | 'Username is required when a password is provided'
         'a click action without a URL'             | [ntfyClickAction: 'view']                                             | 'Action URL is required'
         'a click action with a non-http URL'       | [ntfyClickAction: 'view', ntfyActionUrl: 'ftp://x']                   | 'Action URL must start with http:// or https://'
         'an attachment with a non-http URL'        | [ntfyAttachUrl: 'file:///etc/passwd']                                 | 'Attachment URL must start with http:// or https://'
@@ -45,6 +44,27 @@ class ConfigurationValidationSpec extends NtfyDriverSpecBase {
         'at scheduling with an impossible date'    | [ntfyScheduling: 'at', ntfyScheduleTime: '2099-02-31 08:00:00']       | 'not a valid date'
         'at scheduling with a time in the past'    | [ntfyScheduling: 'at', ntfyScheduleTime: '2020-01-01 08:00:00']       | 'must be in the future'
         'at scheduling more than three days out'   | [ntfyScheduling: 'at', ntfyScheduleTime: '2099-01-01 08:00:00']       | 'must be within 3 days'
+    }
+
+    def "a password without a username warns but still sends without auth, as 1.0.0 did"() {
+        when:
+        loadDriver(ntfyPassword: 's3cret').deviceNotification('hello')
+
+        then:
+        posts.size() == 1
+        !lastPost().headers.containsKey('Authorization')
+        logs.warn.size() == 1
+        logs.warn[0].contains('Password is set without a username')
+        allLogLines().every { !it.contains('s3cret') }
+    }
+
+    def "a password without a username does not warn when an access token is in use"() {
+        when:
+        loadDriver(ntfyPassword: 's3cret', ntfyAccessToken: 'tk_abc').deviceNotification('hello')
+
+        then:
+        lastPost().headers.Authorization == 'Bearer tk_abc'
+        logs.warn.isEmpty()
     }
 
     def "reports every configuration problem at once"() {
