@@ -19,7 +19,7 @@ backward compatibility with installed devices is the first constraint on every c
 ./gradlew test
 ```
 
-Gradle needs JDK 17+ (`JAVA_HOME=/opt/homebrew/opt/openjdk@21` on this machine). The JDK 11 test
+Gradle needs JDK 17+ on `PATH` or in `JAVA_HOME`. The JDK 11 test
 toolchain is auto-provisioned. hubitat_ci 0.17 comes from an anonymous Azure Maven feed; newer versions
 only exist on GitHub Packages, which needs a token, so stay on 0.17 unless that changes.
 
@@ -53,6 +53,12 @@ only exist on GitHub Packages, which needs a token, so stay on 0.17 unless that 
 - Spock picks the earliest declared matching interaction, so per-test HTTP failures go through the
   swappable `postBehavior` closure instead of re-declaring `httpPost`.
 - `Flags.DontRestrictGroovy` is required: the 0.17 sandbox whitelist rejects `e.statusCode`, which Hubitat allows.
+
+## Commit conventions
+
+- Public repository. Commit messages describe the change only: no AI co-author trailers, no local
+  paths, no personal details.
+- Conventional prefixes (`feat`, `fix`, `docs`, `chore`) with a short summary and a bulleted body.
 
 ## Release checklist
 
