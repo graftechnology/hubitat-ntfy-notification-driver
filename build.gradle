@@ -1,0 +1,56 @@
+plugins {
+    id 'groovy'
+}
+
+// hubitat_ci is built on Groovy 2.5 (matching the hub's Groovy 2.4 runtime) and touches
+// JDK internals that are sealed off from Java 17 onward, so tests run on a JDK 11 toolchain.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+repositories {
+    mavenCentral()
+    // hubitat_ci (Hubitat sandbox + validator) is published to an anonymous Azure Artifacts feed.
+    maven {
+        url = 'https://biocomp.pkgs.visualstudio.com/HubitatCiRelease/_packaging/hubitat_ci_feed@Release/maven/v1'
+    }
+}
+
+dependencies {
+    testImplementation 'org.codehaus.groovy:groovy-all:2.5.23'
+    testImplementation 'org.codehaus.groovy:groovy-dateutil:2.5.23'
+    testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
+    testImplementation 'me.biocomp.hubitat_ci:hubitat_ci:0.17'
+    testImplementation 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
+    testImplementation 'net.bytebuddy:byte-buddy:1.14.19'
+    testImplementation 'org.objenesis:objenesis:3.3'
+}
+
+test {
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat 'full'
+    }
+}
+
+// HPM serves whatever version the manifest declares; a mismatch with the driver ships a wrong update.
+tasks.register('verifyManifestVersion') {
+    group = 'verification'
+    description = 'Fails if packageManifest.json and the driver VERSION constant disagree.'
+    def manifestFile = file('packageManifest.json')
+    def driverFile = file('drivers/graftechnology/ntfy-notifier.groovy')
+    inputs.files(manifestFile, driverFile)
+    doLast {
+        def manifest = new groovy.json.JsonSlurper().parse(manifestFile)
+        def matcher = driverFile.text =~ /VERSION\s*=\s*"([^"]+)"/
+        assert matcher.find() : "No VERSION constant found in ${driverFile.name}"
+        def driverVersion = matcher.group(1)
+        assert manifest.version == driverVersion : "packageManifest.json version ${manifest.version} != driver VERSION ${driverVersion}"
+        assert manifest.drivers[0].version == driverVersion : "packageManifest.json driver entry version ${manifest.drivers[0].version} != driver VERSION ${driverVersion}"
+        assert manifest.drivers[0].name == 'NTFY Notifier Driver' && manifest.drivers[0].namespace == 'graftechnology' : 'Driver identity in manifest changed; existing installs would stop receiving updates'
+        logger.lifecycle("packageManifest.json and driver agree on version ${driverVersion}")
+    }
+}
+tasks.named('check') { dependsOn 'verifyManifestVersion' }

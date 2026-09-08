@@ -1,0 +1,7 @@
+plugins {
+    // Auto-provisions the JDK required by the toolchain below so contributors and CI
+    // do not need to install one manually.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'hubitat-ntfy-notification-driver'
